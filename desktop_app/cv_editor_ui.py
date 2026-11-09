@@ -221,6 +221,15 @@ class CVEditorApp(ctk.CTk):
         )
         btn_clear.pack(side="left", padx=(6, 3))
 
+        btn_open_json = ctk.CTkButton(
+            f_tools, text=" Ouvrir JSON", width=95, height=26, font=ctk.CTkFont(size=10, weight="bold"),
+            image=self.icons.get_white_icon("folder_open", 12), compound="left",
+            fg_color=("#2563eb", "#1d4ed8"), hover_color=("#1d4ed8", "#1e40af"),
+            text_color="#ffffff",
+            command=self._load_json_file
+        )
+        btn_open_json.pack(side="left", padx=3)
+
         # Boutons d'action à droite
         btn_html = ctk.CTkButton(
             f_tools, text=" Aperçu Web", width=105, height=28, font=ctk.CTkFont(size=11, weight="bold"),
@@ -1092,6 +1101,19 @@ class CVEditorApp(ctk.CTk):
         )
         btn_save_json.grid(row=1, column=1, sticky="we", padx=6, pady=4)
 
+        btn_load_json = ctk.CTkButton(
+            f_btn_grid,
+            text=" Charger / Importer Profil (.json)",
+            image=self.icons.get_white_icon("folder_open", 16),
+            compound="left",
+            height=42,
+            font=ctk.CTkFont(size=13),
+            fg_color=("#2563eb", "#1d4ed8"),
+            hover_color=("#1d4ed8", "#1e40af"),
+            command=self._load_json_file
+        )
+        btn_load_json.grid(row=2, column=0, columnspan=2, sticky="we", padx=6, pady=(6, 4))
+
         f_btn_grid.grid_columnconfigure(0, weight=1)
         f_btn_grid.grid_columnconfigure(1, weight=1)
 
@@ -1484,6 +1506,21 @@ class CVEditorApp(ctk.CTk):
         if target:
             data.save_json(target)
             messagebox.showinfo("Sauvegarde", f"Profil sauvegardé avec succès dans :\n{target}")
+
+    def _load_json_file(self):
+        """Charge un profil complet depuis un fichier JSON sauvegardé."""
+        target = filedialog.askopenfilename(
+            title="Ouvrir un profil CV JSON",
+            initialdir=str(BASE_DIR),
+            filetypes=[("Fichier JSON (*.json)", "*.json"), ("Tous les fichiers", "*.*")]
+        )
+        if target:
+            try:
+                self.data = CVData.load_json(target)
+                self._sync_ui_with_data()
+                messagebox.showinfo("Profil Chargé", f"Profil chargé avec succès depuis :\n{target}")
+            except Exception as e:
+                messagebox.showerror("Erreur de Chargement JSON", f"Impossible de charger le fichier JSON :\n{e}")
 
 
 def main():
