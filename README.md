@@ -13,7 +13,7 @@
 
 Vous pouvez tester l'application directement dans votre navigateur, sur mobile, tablette ou ordinateur sans rien installer :
 
-👉 **[Accéder au Web Studio en Direct]([https://osirisai-dev.github.io/cv-maker/](https://osirisai-dev.github.io/CURRICULUM-EDITOR/)**
+👉 **Accéder au Web Studio en Direct : (https://osirisai-dev.github.io/CURRICULUM-EDITOR/)**
 
 ---
 
