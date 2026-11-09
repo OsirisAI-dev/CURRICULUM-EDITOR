@@ -1,0 +1,15 @@
+;Configuration de l'installateur Curriculum Vitae Studio - Osiris Edition
+Title=Installation - Curriculum Vitae Studio (Osiris Edition)
+Text
+{
+Bienvenue dans l'assistant d'installation de Curriculum Vitae Studio (Osiris Edition).
+Multi-Styles & Multi-Versions avec Studio Web integre (0 dependance).
+
+Cliquez sur "Installer" pour deployer l'application sur votre ordinateur.
+Des raccourcis seront automatiquement crees sur votre Bureau et Menu Demarrer.
+}
+Path=%LOCALAPPDATA%\CV_Maker
+SavePath
+Setup=wscript.exe //B //nologo post_install_generic.vbs
+Silent=0
+Overwrite=1

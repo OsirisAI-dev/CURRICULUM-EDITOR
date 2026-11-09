@@ -1,0 +1,30 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Large binary executables and archives
+*.exe
+*.rar
+*.zip
+*.7z
+*.tar.gz
+
+# Generated build directories
+desktop_app/web_version/
+desktop_app/offline_runtime.exe
+desktop_app/tmp_*
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/

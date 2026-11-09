@@ -1,0 +1,17 @@
+;Configuration de l'installateur Curriculum Vitae Studio - Version Complete Hors-Ligne
+Title=Installation Complete Hors-Ligne - Curriculum Vitae Studio (Osiris Edition)
+Text
+{
+Bienvenue dans l'assistant d'installation COMPLETE HORS-LIGNE de Curriculum Vitae Studio.
+(Compatible Windows 7, 8, 8.1, 10 et 11 - 32 bits et 64 bits)
+
+Cet installateur verifie automatiquement votre ordinateur :
+- Si Python et Tkinter sont absents, il les installe automatiquement hors-ligne (sans Internet).
+- Si votre PC possede deja tous les composants requis, il lance directement l'application.
+Comprend egalement le Studio Web 100% autonome.
+}
+Path=%LOCALAPPDATA%\CV_Maker
+SavePath
+Setup=wscript.exe //B //nologo post_install_generic.vbs
+Silent=0
+Overwrite=1
