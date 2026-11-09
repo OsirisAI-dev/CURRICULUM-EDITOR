@@ -3,7 +3,7 @@
 > **Éditeur de CV Professionnel Multi-Styles & Multi-Langues (FR / EN / DE)**  
 > *Conçu pour l'accessibilité universelle : application Web 100% autonome (0 dépendance) & version bureau Windows.*
 
-[![GitHub Pages](https://img.shields.io/badge/Demo-GitHub%20Pages-blue?style=flat-square&logo=github)](https://osirisai-dev.github.io/cv-maker/)
+[![GitHub Pages](https://img.shields.io/badge/Demo-GitHub%20Pages-blue?style=flat-square&logo=github)](https://osirisai-dev.github.io/CURRICULUM-EDITOR/)
 [![Python](https://img.shields.io/badge/Python-3.8+-brightgreen?style=flat-square&logo=python)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
 
