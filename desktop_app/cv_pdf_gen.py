@@ -190,8 +190,9 @@ def generate_cv_pdf(data: CVData, output_path: str | Path) -> str:
         contact_parts.append(f"✉ {gen.email}")
     if gen.phone:
         contact_parts.append(f"☎ {gen.phone}")
-    if gen.city or gen.country:
-        contact_parts.append(f"📍 {gen.city}{', ' + gen.country if gen.country else ''}")
+    loc_str = ", ".join(filter(None, [gen.city, gen.country]))
+    if loc_str:
+        contact_parts.append(f"📍 {loc_str}")
     if gen.linkedin:
         contact_parts.append(f"🔗 {gen.linkedin}")
     if gen.github:

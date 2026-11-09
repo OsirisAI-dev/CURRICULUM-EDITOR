@@ -1103,7 +1103,17 @@ class CVEditorApp(ctk.CTk):
         g.summary = self.txt_summary.get("1.0", "end").strip()
         g.email = self.ent_email.get().strip()
         g.phone = self.ent_phone.get().strip()
-        g.city = self.ent_city.get().strip()
+        raw_loc = self.ent_city.get().strip()
+        if not raw_loc:
+            g.city = ""
+            g.country = ""
+        elif "," in raw_loc:
+            parts = [p.strip() for p in raw_loc.split(",", 1)]
+            g.city = parts[0]
+            g.country = parts[1]
+        else:
+            g.city = raw_loc
+            g.country = ""
         g.linkedin = self.ent_linkedin.get().strip()
         g.github = self.ent_github.get().strip()
         g.portfolio_url = self.ent_portfolio.get().strip()
@@ -1284,7 +1294,12 @@ class CVEditorApp(ctk.CTk):
             self.ent_phone.delete(0, "end")
             self.ent_phone.insert(0, gen.phone)
             self.ent_city.delete(0, "end")
-            self.ent_city.insert(0, gen.city)
+            if gen.city and gen.country and gen.country.lower() not in gen.city.lower():
+                self.ent_city.insert(0, f"{gen.city}, {gen.country}")
+            elif gen.city:
+                self.ent_city.insert(0, gen.city)
+            elif gen.country:
+                self.ent_city.insert(0, gen.country)
             self.ent_linkedin.delete(0, "end")
             self.ent_linkedin.insert(0, gen.linkedin)
             self.ent_github.delete(0, "end")

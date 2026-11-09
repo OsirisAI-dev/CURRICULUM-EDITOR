@@ -361,7 +361,7 @@ def generate_cv_html(data: CVData) -> str:
             <div class="contact-grid">
                 {f'<div class="contact-item">✉️ {gen.email}</div>' if gen.email else ''}
                 {f'<div class="contact-item">📞 {gen.phone}</div>' if gen.phone else ''}
-                {f'<div class="contact-item">📍 {gen.city}{", " + gen.country if gen.country else ""}</div>' if gen.city or gen.country else ''}
+                {f'<div class="contact-item">📍 {", ".join(filter(None, [gen.city, gen.country]))}</div>' if (gen.city or gen.country) else ''}
                 {f'<div class="contact-item">🔗 {gen.linkedin}</div>' if gen.linkedin else ''}
                 {f'<div class="contact-item">💻 {gen.github}</div>' if gen.github else ''}
             </div>
@@ -579,7 +579,7 @@ def generate_cv_html(data: CVData) -> str:
                 <div style="font-size: 12px; color: #334155; display: flex; flex-direction: column; gap: 8px;">
                     {f'<div>✉️ {gen.email}</div>' if gen.email else ''}
                     {f'<div>📞 {gen.phone}</div>' if gen.phone else ''}
-                    {f'<div>📍 {gen.city}, {gen.country}</div>' if gen.city or gen.country else ''}
+                    {f'<div>📍 {", ".join(filter(None, [gen.city, gen.country]))}</div>' if (gen.city or gen.country) else ''}
                     {f'<div>🔗 {gen.linkedin}</div>' if gen.linkedin else ''}
                     {f'<div>💻 {gen.github}</div>' if gen.github else ''}
                 </div>
