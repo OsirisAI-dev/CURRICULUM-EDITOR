@@ -364,6 +364,7 @@ def generate_cv_html(data: CVData) -> str:
                 {f'<div class="contact-item">📍 {", ".join(filter(None, [gen.city, gen.country]))}</div>' if (gen.city or gen.country) else ''}
                 {f'<div class="contact-item">🔗 {gen.linkedin}</div>' if gen.linkedin else ''}
                 {f'<div class="contact-item">💻 {gen.github}</div>' if gen.github else ''}
+                {f'<div class="contact-item">🌐 {gen.portfolio_url}</div>' if gen.portfolio_url else ''}
             </div>
 
             {f'''
@@ -398,26 +399,29 @@ def generate_cv_html(data: CVData) -> str:
         for exp in data.experiences:
             bullets_li = "".join([f"<li>{b}</li>" for b in exp.achievements if b.strip()])
             end_label = titles["present"] if exp.is_current else exp.end_date
-            dates_str = f"{exp.start_date} – {end_label}" if exp.start_date else end_label
+            dates_str = f"{exp.start_date} – {end_label}" if (exp.start_date and end_label) else (exp.start_date or end_label or "")
 
             if style_id == "german_tabular":
+                comp_loc_str = f"{exp.company} • {exp.location}" if (exp.company and exp.location) else (exp.company or exp.location or "")
                 item = f"""
                 <div class="tabular-row">
                     <div class="tabular-date">{dates_str}</div>
                     <div>
                         <div class="role-title">{exp.job_title}</div>
-                        <div class="institution-name">{exp.company} {f'• {exp.location}' if exp.location else ''}</div>
+                        {f'<div class="institution-name">{comp_loc_str}</div>' if comp_loc_str else ''}
                         {f'<div class="item-desc">{exp.description}</div>' if exp.description else ''}
                         {f'<ul class="bullets">{bullets_li}</ul>' if bullets_li else ''}
                     </div>
                 </div>
                 """
             else:
+                company_span = f' <span class="institution-name">@ {exp.company}</span>' if exp.company else ''
+                badge_div = f'<div class="date-badge">{dates_str}</div>' if dates_str else ''
                 item = f"""
                 <div class="timeline-item">
                     <div class="timeline-hdr">
-                        <div class="role-title">{exp.job_title} <span class="institution-name">@ {exp.company}</span></div>
-                        <div class="date-badge">{dates_str}</div>
+                        <div class="role-title">{exp.job_title}{company_span}</div>
+                        {badge_div}
                     </div>
                     {f'<div style="font-size: 11.5px; color: #64748b; margin-bottom: 3px;">📍 {exp.location}</div>' if exp.location else ''}
                     {f'<div class="item-desc">{exp.description}</div>' if exp.description else ''}
@@ -438,28 +442,30 @@ def generate_cv_html(data: CVData) -> str:
     if data.education:
         items_html = []
         for edu in data.education:
-            dates_str = f"{edu.start_date} – {edu.end_date}" if edu.start_date and edu.end_date else (edu.end_date or edu.start_date)
+            dates_str = f"{edu.start_date} – {edu.end_date}" if edu.start_date and edu.end_date else (edu.end_date or edu.start_date or "")
             
             if style_id == "german_tabular":
+                inst_loc_str = f"{edu.institution} • {edu.location}" if (edu.institution and edu.location) else (edu.institution or edu.location or "")
                 item = f"""
                 <div class="tabular-row">
-                    <div class="tabular-date">{dates_str}</div>
+                    {f'<div class="tabular-date">{dates_str}</div>' if dates_str else '<div></div>'}
                     <div>
                         <div class="role-title">{edu.degree}</div>
-                        <div class="institution-name">{edu.institution} {f'• {edu.location}' if edu.location else ''}</div>
+                        {f'<div class="institution-name">{inst_loc_str}</div>' if inst_loc_str else ''}
                         {f'<div style="font-size: 12px; color: #0f766e; font-weight: 600;">{edu.honors}</div>' if edu.honors else ''}
                         {f'<div class="item-desc">{edu.details}</div>' if edu.details else ''}
                     </div>
                 </div>
                 """
             else:
+                inst_loc_str = f"{edu.institution}{f' ({edu.location})' if edu.location else ''}" if edu.institution else (edu.location or "")
                 item = f"""
                 <div class="timeline-item">
                     <div class="timeline-hdr">
                         <div class="role-title">{edu.degree}</div>
-                        <div class="date-badge">{dates_str}</div>
+                        {f'<div class="date-badge">{dates_str}</div>' if dates_str else ''}
                     </div>
-                    <div class="institution-name">{edu.institution} {f'({edu.location})' if edu.location else ''}</div>
+                    {f'<div class="institution-name">{inst_loc_str}</div>' if inst_loc_str else ''}
                     {f'<div style="font-size: 12px; color: #047857; font-weight: 600; margin-top: 2px;">{edu.honors}</div>' if edu.honors else ''}
                     {f'<div class="item-desc">{edu.details}</div>' if edu.details else ''}
                 </div>
@@ -478,11 +484,12 @@ def generate_cv_html(data: CVData) -> str:
     if data.certifications:
         items_html = []
         for cert in data.certifications:
+            org_span = f' • <span style="color: {p_color};">{cert.issuing_org}</span>' if cert.issuing_org else ''
+            date_span = f' ({cert.issue_date})' if cert.issue_date else ''
+            id_span = f'<span style="color: #64748b; font-size: 11px;"> [ID: {cert.credential_id}]</span>' if cert.credential_id else ''
             item = f"""
             <div style="margin-bottom: 6px; font-size: 12.5px;">
-                <b>{cert.name}</b> • <span style="color: {p_color};">{cert.issuing_org}</span> 
-                {f'({cert.issue_date})' if cert.issue_date else ''}
-                {f'<span style="color: #64748b; font-size: 11px;"> [ID: {cert.credential_id}]</span>' if cert.credential_id else ''}
+                <b>{cert.name}</b>{org_span}{date_span}{id_span}
             </div>
             """
             items_html.append(item)
@@ -547,9 +554,11 @@ def generate_cv_html(data: CVData) -> str:
     # 9. Clôture & Signature (Spécifique DACH / Allemand ou activé)
     signoff_html = ""
     if data.config.show_signoff:
+        def_place = "Ort" if is_german else ("Location" if is_english else "Lieu")
+        def_date = "Datum" if is_german else ("Date" if is_english else "Date")
         place_date_txt = titles["signoff_place_date"].format(
-            place=data.signoff.place or gen.city or "Lieu",
-            date=data.signoff.date_str or "Date"
+            place=data.signoff.place or gen.city or def_place,
+            date=data.signoff.date_str or def_date
         )
         sig_name = data.signoff.signature_name or f"{gen.first_name} {gen.last_name}"
         signoff_html = f"""
@@ -582,6 +591,7 @@ def generate_cv_html(data: CVData) -> str:
                     {f'<div>📍 {", ".join(filter(None, [gen.city, gen.country]))}</div>' if (gen.city or gen.country) else ''}
                     {f'<div>🔗 {gen.linkedin}</div>' if gen.linkedin else ''}
                     {f'<div>💻 {gen.github}</div>' if gen.github else ''}
+                    {f'<div>🌐 {gen.portfolio_url}</div>' if gen.portfolio_url else ''}
                 </div>
 
                 {skills_html}

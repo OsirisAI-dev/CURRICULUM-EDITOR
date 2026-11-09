@@ -1153,6 +1153,7 @@ function renderPreview() {
   if (gen.city || gen.country) contactItems.push(`<span>📍 ${escapeHtml([gen.city, gen.country].filter(Boolean).join(", "))}</span>`);
   if (gen.linkedin) contactItems.push(`<span>🔗 ${escapeHtml(gen.linkedin)}</span>`);
   if (gen.github) contactItems.push(`<span>💻 ${escapeHtml(gen.github)}</span>`);
+  if (gen.portfolio_url) contactItems.push(`<span>🌐 ${escapeHtml(gen.portfolio_url)}</span>`);
 
   // Civil status items (si affiché)
   const civilItems = [];
@@ -1250,23 +1251,27 @@ function renderExperiencesHtml(pColor, secTitle, styleId) {
   let out = `<div class="cv-sec-title" style="color:${pColor}; border-bottom:1.5px solid ${pColor}; font-weight:bold; font-size:12px; text-transform:uppercase; margin-top:12px; margin-bottom:8px;">${secTitle}</div>`;
   cvState.experiences.forEach(exp => {
     const dates = [exp.start_date, exp.end_date || (exp.is_current ? 'Présent' : '')].filter(Boolean).join(" – ");
+    const dateDiv = dates ? `<div style="font-size:10.5px; font-weight:bold; color:#64748b;">${escapeHtml(dates)}</div>` : '';
     if (styleId === "german_tabular") {
+      const compLoc = [exp.company, exp.location ? `(${exp.location})` : ''].filter(Boolean).join(" ");
       out += `
         <div class="tab-row" style="display:grid; grid-template-columns:110px 1fr; gap:12px; margin-bottom:10px; font-size:11.5px;">
           <div class="tab-date" style="font-weight:bold; color:${pColor};">${escapeHtml(dates)}</div>
           <div>
-            <strong>${escapeHtml(exp.job_title)}</strong> • <span style="color:${pColor};">${escapeHtml(exp.company)}</span> (${escapeHtml(exp.location)})
+            <strong>${escapeHtml(exp.job_title)}</strong>${compLoc ? ` • <span style="color:${pColor};">${escapeHtml(compLoc)}</span>` : ''}
             ${exp.description ? `<div style="margin-top:2px; color:#475569;">${escapeHtml(exp.description)}</div>` : ''}
             ${(exp.achievements || []).map(a => `<div style="padding-left:8px;">• ${escapeHtml(a)}</div>`).join('')}
           </div>
         </div>
       `;
     } else {
+      const locStr = exp.location ? ` (${escapeHtml(exp.location)})` : '';
+      const compStr = exp.company ? ` | <span style="color:${pColor}; font-weight:600;">${escapeHtml(exp.company)}</span>${locStr}` : (locStr ? ` | ${locStr}` : '');
       out += `
         <div style="margin-bottom:10px; font-size:11.5px;">
           <div style="display:flex; justify-content:space-between; align-items:baseline;">
-            <div><strong>${escapeHtml(exp.job_title)}</strong> | <span style="color:${pColor}; font-weight:600;">${escapeHtml(exp.company)}</span> (${escapeHtml(exp.location)})</div>
-            <div style="font-size:10.5px; font-weight:bold; color:#64748b;">${escapeHtml(dates)}</div>
+            <div><strong>${escapeHtml(exp.job_title)}</strong>${compStr}</div>
+            ${dateDiv}
           </div>
           ${exp.description ? `<div style="margin-top:2px; color:#334155;">${escapeHtml(exp.description)}</div>` : ''}
           ${(exp.achievements || []).map(a => `<div style="padding-left:10px; color:#334155;">• ${escapeHtml(a)}</div>`).join('')}
@@ -1282,22 +1287,26 @@ function renderEducationHtml(pColor, secTitle, styleId) {
   let out = `<div class="cv-sec-title" style="color:${pColor}; border-bottom:1.5px solid ${pColor}; font-weight:bold; font-size:12px; text-transform:uppercase; margin-top:12px; margin-bottom:8px;">${secTitle}</div>`;
   cvState.education.forEach(edu => {
     const dates = [edu.start_date, edu.end_date].filter(Boolean).join(" – ");
+    const dateDiv = dates ? `<div style="font-size:10.5px; font-weight:bold; color:#64748b;">${escapeHtml(dates)}</div>` : '';
     if (styleId === "german_tabular") {
+      const instLoc = [edu.institution, edu.location ? `(${edu.location})` : ''].filter(Boolean).join(" ");
       out += `
         <div class="tab-row" style="display:grid; grid-template-columns:110px 1fr; gap:12px; margin-bottom:8px; font-size:11.5px;">
           <div class="tab-date" style="font-weight:bold; color:${pColor};">${escapeHtml(dates)}</div>
           <div>
-            <strong>${escapeHtml(edu.degree)}</strong> • ${escapeHtml(edu.institution)}
+            <strong>${escapeHtml(edu.degree)}</strong>${instLoc ? ` • ${escapeHtml(instLoc)}` : ''}
             ${edu.honors ? `<div style="font-style:italic; color:#475569;">${escapeHtml(edu.honors)}</div>` : ''}
           </div>
         </div>
       `;
     } else {
+      const locStr = edu.location ? ` (${escapeHtml(edu.location)})` : '';
+      const instStr = edu.institution ? ` – <span style="color:${pColor};">${escapeHtml(edu.institution)}</span>${locStr}` : (locStr ? ` – ${locStr}` : '');
       out += `
         <div style="margin-bottom:8px; font-size:11.5px;">
           <div style="display:flex; justify-content:space-between; align-items:baseline;">
-            <div><strong>${escapeHtml(edu.degree)}</strong> – <span style="color:${pColor};">${escapeHtml(edu.institution)}</span> (${escapeHtml(edu.location)})</div>
-            <div style="font-size:10.5px; font-weight:bold; color:#64748b;">${escapeHtml(dates)}</div>
+            <div><strong>${escapeHtml(edu.degree)}</strong>${instStr}</div>
+            ${dateDiv}
           </div>
           ${(edu.honors || edu.details) ? `<div style="font-size:10.5px; color:#475569; font-style:italic;">${escapeHtml([edu.honors, edu.details].filter(Boolean).join(' • '))}</div>` : ''}
         </div>
@@ -1384,10 +1393,11 @@ function renderHobbiesSidebarHtml(pColor, secTitle) {
 
 function renderSignoffHtml(pColor) {
   if (!cvState.config.show_signoff || !cvState.signoff || !cvState.signoff.enabled) return "";
+  const signParts = [cvState.signoff.place, cvState.signoff.date_str].filter(Boolean);
   return `
     <div style="margin-top:28px; font-size:11px; page-break-inside:avoid;">
-      <div><em>${escapeHtml(cvState.signoff.place || '')}, ${escapeHtml(cvState.signoff.date_str || '')}</em></div>
-      <div style="font-weight:bold; color:${pColor}; text-decoration:underline; margin-top:6px;">${escapeHtml(cvState.signoff.signature_name || '')}</div>
+      ${signParts.length > 0 ? `<div><em>${escapeHtml(signParts.join(", "))}</em></div>` : ''}
+      ${cvState.signoff.signature_name ? `<div style="font-weight:bold; color:${pColor}; text-decoration:underline; margin-top:6px;">${escapeHtml(cvState.signoff.signature_name)}</div>` : ''}
     </div>
   `;
 }

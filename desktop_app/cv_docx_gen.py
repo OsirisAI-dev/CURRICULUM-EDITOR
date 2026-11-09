@@ -119,6 +119,8 @@ def generate_cv_docx(data: CVData, output_path: str | Path) -> str:
         contact_parts.append(f"🔗 {gen.linkedin}")
     if gen.github:
         contact_parts.append(f"💻 {gen.github}")
+    if gen.portfolio_url:
+        contact_parts.append(f"🌐 {gen.portfolio_url}")
 
     if contact_parts:
         p_c = cell_info.add_paragraph()
@@ -172,7 +174,7 @@ def generate_cv_docx(data: CVData, output_path: str | Path) -> str:
         _add_colored_heading(doc, titles["experience"], p_hex)
         for exp in data.experiences:
             end_label = titles["present"] if exp.is_current else exp.end_date
-            dates_str = f"{exp.start_date} – {end_label}" if exp.start_date else end_label
+            dates_str = f"{exp.start_date} – {end_label}" if (exp.start_date and end_label) else (exp.start_date or end_label or "")
 
             p_item = doc.add_paragraph()
             p_item.paragraph_format.space_before = Pt(4)
@@ -183,11 +185,12 @@ def generate_cv_docx(data: CVData, output_path: str | Path) -> str:
             r_role.font.size = Pt(10)
             r_role.font.name = "Segoe UI"
 
-            r_comp = p_item.add_run(f"|  {exp.company} ")
-            r_comp.bold = True
-            r_comp.font.size = Pt(10)
-            r_comp.font.name = "Segoe UI"
-            r_comp.font.color.rgb = p_rgb
+            if exp.company:
+                r_comp = p_item.add_run(f"|  {exp.company} ")
+                r_comp.bold = True
+                r_comp.font.size = Pt(10)
+                r_comp.font.name = "Segoe UI"
+                r_comp.font.color.rgb = p_rgb
 
             if exp.location:
                 r_loc = p_item.add_run(f"({exp.location}) ")
@@ -195,11 +198,12 @@ def generate_cv_docx(data: CVData, output_path: str | Path) -> str:
                 r_loc.font.name = "Segoe UI"
                 r_loc.font.color.rgb = RGBColor(100, 116, 139)
 
-            r_dt = p_item.add_run(f"       [{dates_str}]")
-            r_dt.italic = True
-            r_dt.font.size = Pt(9)
-            r_dt.font.name = "Segoe UI"
-            r_dt.font.color.rgb = RGBColor(100, 116, 139)
+            if dates_str:
+                r_dt = p_item.add_run(f"       [{dates_str}]")
+                r_dt.italic = True
+                r_dt.font.size = Pt(9)
+                r_dt.font.name = "Segoe UI"
+                r_dt.font.color.rgb = RGBColor(100, 116, 139)
 
             if exp.description:
                 p_desc = doc.add_paragraph()
@@ -222,7 +226,7 @@ def generate_cv_docx(data: CVData, output_path: str | Path) -> str:
     if data.education:
         _add_colored_heading(doc, titles["education"], p_hex)
         for edu in data.education:
-            dates_str = f"{edu.start_date} – {edu.end_date}" if edu.start_date and edu.end_date else (edu.end_date or edu.start_date)
+            dates_str = f"{edu.start_date} – {edu.end_date}" if edu.start_date and edu.end_date else (edu.end_date or edu.start_date or "")
 
             p_e = doc.add_paragraph()
             p_e.paragraph_format.space_before = Pt(4)
@@ -233,11 +237,12 @@ def generate_cv_docx(data: CVData, output_path: str | Path) -> str:
             r_deg.font.size = Pt(10)
             r_deg.font.name = "Segoe UI"
 
-            r_inst = p_e.add_run(f"|  {edu.institution} ")
-            r_inst.bold = True
-            r_inst.font.size = Pt(9.5)
-            r_inst.font.name = "Segoe UI"
-            r_inst.font.color.rgb = p_rgb
+            if edu.institution:
+                r_inst = p_e.add_run(f"|  {edu.institution} ")
+                r_inst.bold = True
+                r_inst.font.size = Pt(9.5)
+                r_inst.font.name = "Segoe UI"
+                r_inst.font.color.rgb = p_rgb
 
             if edu.location:
                 r_l = p_e.add_run(f"({edu.location}) ")
@@ -245,11 +250,12 @@ def generate_cv_docx(data: CVData, output_path: str | Path) -> str:
                 r_l.font.name = "Segoe UI"
                 r_l.font.color.rgb = RGBColor(100, 116, 139)
 
-            r_ed = p_e.add_run(f"       [{dates_str}]")
-            r_ed.italic = True
-            r_ed.font.size = Pt(9)
-            r_ed.font.name = "Segoe UI"
-            r_ed.font.color.rgb = RGBColor(100, 116, 139)
+            if dates_str:
+                r_ed = p_e.add_run(f"       [{dates_str}]")
+                r_ed.italic = True
+                r_ed.font.size = Pt(9)
+                r_ed.font.name = "Segoe UI"
+                r_ed.font.color.rgb = RGBColor(100, 116, 139)
 
             if edu.honors:
                 p_hon = doc.add_paragraph()
@@ -333,9 +339,11 @@ def generate_cv_docx(data: CVData, output_path: str | Path) -> str:
 
     # 8. Clôture et Signature (Spécifique DACH / Allemand)
     if data.config.show_signoff:
+        def_place = "Ort" if is_german else ("Location" if is_english else "Lieu")
+        def_date = "Datum" if is_german else ("Date" if is_english else "Date")
         place_date_txt = titles["signoff_place_date"].format(
-            place=data.signoff.place or gen.city or "Lieu",
-            date=data.signoff.date_str or "Date"
+            place=data.signoff.place or gen.city or def_place,
+            date=data.signoff.date_str or def_date
         )
         sig_name = data.signoff.signature_name or f"{gen.first_name} {gen.last_name}"
 

@@ -197,6 +197,8 @@ def generate_cv_pdf(data: CVData, output_path: str | Path) -> str:
         contact_parts.append(f"🔗 {gen.linkedin}")
     if gen.github:
         contact_parts.append(f"💻 {gen.github}")
+    if gen.portfolio_url:
+        contact_parts.append(f"🌐 {gen.portfolio_url}")
 
     contact_str = " &nbsp;•&nbsp; ".join(contact_parts)
 
@@ -260,14 +262,15 @@ def generate_cv_pdf(data: CVData, output_path: str | Path) -> str:
         story.append(make_section_header(titles["experience"]))
         for exp in data.experiences:
             end_label = titles["present"] if exp.is_current else exp.end_date
-            dates_str = f"{exp.start_date} – {end_label}" if exp.start_date else end_label
+            dates_str = f"{exp.start_date} – {end_label}" if (exp.start_date and end_label) else (exp.start_date or end_label or "")
 
             if style_id == "german_tabular":
                 # Style tabulaire avec dates à gauche
                 cell_left = Paragraph(f"<b>{dates_str}</b>", st_item_date_tabular)
+                comp_loc_str = f"{exp.company} • {exp.location}" if (exp.company and exp.location) else (exp.company or exp.location or "")
                 right_paras = [
                     Paragraph(f"<b>{exp.job_title}</b>", st_item_role),
-                    Paragraph(f"{exp.company}{' • ' + exp.location if exp.location else ''}", st_item_company)
+                    Paragraph(comp_loc_str, st_item_company)
                 ]
                 if exp.description:
                     right_paras.append(Paragraph(exp.description, st_body))
@@ -286,7 +289,9 @@ def generate_cv_pdf(data: CVData, output_path: str | Path) -> str:
                 story.append(KeepTogether([t_row]))
             else:
                 # Style classique / minimaliste
-                p_left = Paragraph(f"<b>{exp.job_title}</b> &nbsp;|&nbsp; <font color='{p_hex}'><b>{exp.company}</b></font>{f' ({exp.location})' if exp.location else ''}", st_item_role)
+                comp_part = f" &nbsp;|&nbsp; <font color='{p_hex}'><b>{exp.company}</b></font>" if exp.company else ""
+                loc_part = f" ({exp.location})" if exp.location else ""
+                p_left = Paragraph(f"<b>{exp.job_title}</b>{comp_part}{loc_part}", st_item_role)
                 p_right = Paragraph(dates_str, st_item_date)
                 
                 t_header = Table([[p_left, p_right]], colWidths=[usable_width - 100, 100])
@@ -312,13 +317,14 @@ def generate_cv_pdf(data: CVData, output_path: str | Path) -> str:
     if data.education:
         story.append(make_section_header(titles["education"]))
         for edu in data.education:
-            dates_str = f"{edu.start_date} – {edu.end_date}" if edu.start_date and edu.end_date else (edu.end_date or edu.start_date)
+            dates_str = f"{edu.start_date} – {edu.end_date}" if edu.start_date and edu.end_date else (edu.end_date or edu.start_date or "")
 
             if style_id == "german_tabular":
                 cell_left = Paragraph(f"<b>{dates_str}</b>", st_item_date_tabular)
+                inst_loc_str = f"{edu.institution} • {edu.location}" if (edu.institution and edu.location) else (edu.institution or edu.location or "")
                 right_paras = [
                     Paragraph(f"<b>{edu.degree}</b>", st_item_role),
-                    Paragraph(f"{edu.institution}{' • ' + edu.location if edu.location else ''}", st_item_company)
+                    Paragraph(inst_loc_str, st_item_company)
                 ]
                 if edu.honors:
                     right_paras.append(Paragraph(f"<i>{edu.honors}</i>", st_body))
@@ -335,7 +341,9 @@ def generate_cv_pdf(data: CVData, output_path: str | Path) -> str:
                 ]))
                 story.append(KeepTogether([t_row]))
             else:
-                p_left = Paragraph(f"<b>{edu.degree}</b> &nbsp;|&nbsp; <font color='{p_hex}'><b>{edu.institution}</b></font>{f' ({edu.location})' if edu.location else ''}", st_item_role)
+                inst_part = f" &nbsp;|&nbsp; <font color='{p_hex}'><b>{edu.institution}</b></font>" if edu.institution else ""
+                loc_part = f" ({edu.location})" if edu.location else ""
+                p_left = Paragraph(f"<b>{edu.degree}</b>{inst_part}{loc_part}", st_item_role)
                 p_right = Paragraph(dates_str, st_item_date)
                 
                 t_header = Table([[p_left, p_right]], colWidths=[usable_width - 100, 100])
@@ -445,9 +453,11 @@ def generate_cv_pdf(data: CVData, output_path: str | Path) -> str:
 
     # 8. Clôture et Signature (Spécifique DACH / Lebenslauf ou activé)
     if data.config.show_signoff:
+        def_place = "Ort" if is_german else ("Location" if is_english else "Lieu")
+        def_date = "Datum" if is_german else ("Date" if is_english else "Date")
         place_date_txt = titles["signoff_place_date"].format(
-            place=data.signoff.place or gen.city or "Lieu",
-            date=data.signoff.date_str or "Date"
+            place=data.signoff.place or gen.city or def_place,
+            date=data.signoff.date_str or def_date
         )
         sig_name = data.signoff.signature_name or f"{gen.first_name} {gen.last_name}"
 

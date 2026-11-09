@@ -338,6 +338,13 @@ class CVEditorApp(ctk.CTk):
         self.btn_pick_photo = ctk.CTkButton(f_photo, text="Choisir photo...", width=120, height=24, command=self._pick_photo)
         self.btn_pick_photo.pack(side="left", padx=10)
 
+        self.btn_clear_photo = ctk.CTkButton(
+            f_photo, text="", image=self.icons.get_icon("trash", 12, "#ef4444", "#f87171"),
+            width=26, height=24, fg_color=("#fee2e2", "#450a0a"), hover_color=("#fecaca", "#7f1d1d"),
+            command=self._clear_photo
+        )
+        self.btn_clear_photo.pack(side="left", padx=(0, 8))
+
         self.lbl_photo_status = ctk.CTkLabel(f_photo, text="Aucune photo sélectionnée", font=ctk.CTkFont(size=10, slant="italic"), text_color=("#64748b", "#94a3b8"))
         self.lbl_photo_status.pack(side="left")
 
@@ -425,6 +432,10 @@ class CVEditorApp(ctk.CTk):
         if f:
             self.data.general.photo_path = f
             self.lbl_photo_status.configure(text=Path(f).name, text_color=("#15803d", "#4ade80"))
+
+    def _clear_photo(self):
+        self.data.general.photo_path = ""
+        self.lbl_photo_status.configure(text="Aucune photo sélectionnée", text_color=("#64748b", "#94a3b8"))
 
     # ═════════════════════════════════════════════════════════════════════════
     #  Onglet 2 : Expériences Professionnelles
@@ -1328,6 +1339,12 @@ class CVEditorApp(ctk.CTk):
                 self.cb_show_signoff.select()
             else:
                 self.cb_show_signoff.deselect()
+
+            if hasattr(self, "lbl_photo_status"):
+                if gen.photo_path:
+                    self.lbl_photo_status.configure(text=Path(gen.photo_path).name, text_color=("#15803d", "#4ade80"))
+                else:
+                    self.lbl_photo_status.configure(text="Aucune photo sélectionnée", text_color=("#64748b", "#94a3b8"))
 
         # Onglet 2 : Expériences
         if hasattr(self, "scroll_exp"):
